@@ -16,16 +16,28 @@ export default function Index() {
       <div className="w-full flex justify-center mb-8">
         <Image src="/octoai.png" width={200} height={100} alt="OctoAI Logo" />
       </div>
-      <Link href="chat-completion">
-        <Card>
-          <CardHeader>
-            <CardTitle>Text Gen</CardTitle>
-            <CardDescription>
-              Generate text using our open source models
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </Link>
+      <div className="flex flex-col md:flex-row gap-4">
+        <Link href="chat-completion">
+          <Card>
+            <CardHeader>
+              <CardTitle>Text Gen</CardTitle>
+              <CardDescription>
+                Generate text using our open source models
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link href="image-gen">
+          <Card>
+            <CardHeader>
+              <CardTitle>Image Gen</CardTitle>
+              <CardDescription>
+                Generate images using our open source models
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+      </div>
     </main>
   );
 }

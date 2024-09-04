@@ -1,5 +1,5 @@
-import { Message } from "@/app/page";
 import { octoAIClient } from "@/lib/octoaiClient";
+import { Message } from "./chatSummarization";
 
 interface SummarizeResult {
   summary: string;

@@ -1,14 +1,13 @@
 "use client";
-
-import { useFormState, useFormStatus } from "react-dom";
-import { chatCompletion } from "@/lib/octoai/chatCompletion";
+import { useFormState } from "react-dom";
+import { useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { ChatInput } from "@/components/ChatInput";
+import { chatSummarization } from "@/lib/octoai/chatSummarization";
 import { ChatContent } from "@/components/ChatContent";
-import { useEffect, useRef } from "react";
 
 export default function Home() {
-  const [state, formAction] = useFormState(chatCompletion, { messages: [] });
+  const [state, formAction] = useFormState(chatSummarization, { messages: [] });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -25,20 +24,23 @@ export default function Home() {
         <ChatContent messages={state.messages}>
           <h2 className="text-3xl font-bold tracking-tight mb-4">Hello!</h2>
           <p className="mb-4">
-            This chat completions example takes a single user input and returns
-            a response from the model. For this example, we default to using
-            Meta's Llama 3.1 8b model.
-          </p>
-          <p className="mb-4">
-            This file can be found in the <b>app/chat-completion/page.tsx</b>
+            This file can be found in the{" "}
+            <b>src/app/chat-completion/page.tsx</b>
           </p>
           <p className="mb-4">
             The form submits a form action to
-            <b>lib/octoai/chatCompletion.ts</b>
+            <b> src/lib/octoai/chatCompletion.ts,</b>
+            which keeps track of previous chat history.
+          </p>
+          <p>
+            Before submitting the new request to OctoAI we also use an
+            additional model to summarize the chat so far using
+            <b> src/lib/octoai/summarizeChat.ts</b>
           </p>
         </ChatContent>
 
         <div ref={messagesEndRef} />
+
         <ChatInput />
       </form>
     </main>

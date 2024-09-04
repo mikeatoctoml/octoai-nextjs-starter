@@ -1,7 +1,6 @@
 "use server";
 
 import { octoAIClient } from "@/lib/octoaiClient";
-import { summarizeChat } from "./summarizeChat";
 
 interface Message {
   role: "user" | "assistant";
@@ -13,24 +12,10 @@ export interface ChatState {
 }
 
 export async function chatCompletion(
-  prevState: { messages: Message[] },
+  _: ChatState,
   formData: FormData
 ): Promise<ChatState> {
-  const userPrompt = formData.get("userPrompt");
-  let chatSummary = "";
-
-  if (prevState.messages.length > 1) {
-    const chatSummarization = await summarizeChat(prevState.messages);
-    if (!chatSummarization.error) {
-      chatSummary = chatSummarization.summary;
-    }
-  }
-
-  // Add user message to the chat history
-  const newMessages = [
-    ...prevState.messages,
-    { role: "user", content: userPrompt },
-  ];
+  const userPrompt = formData.get("userPrompt") as string;
 
   const chatResponse = await octoAIClient.textGen.createChatCompletion({
     model: "meta-llama-3.1-8b-instruct",
@@ -38,19 +23,21 @@ export async function chatCompletion(
     messages: [
       {
         role: "system",
-        content: `You are a helpful assistant. Here is a summary of the chat so far: ${chatSummary}`,
+        content: `You are a helpful assistant.`,
       },
-      {
-        role: "user",
-        content: JSON.stringify(userPrompt),
-      },
+      { role: "user", content: userPrompt },
     ],
   });
 
   const responseMessage = chatResponse.choices[0].message.content;
+  if (!responseMessage) {
+    throw "Invalid response from LLM";
+  }
 
-  // Add assistant's response to the chat history
-  newMessages.push({ role: "assistant", content: responseMessage });
-
-  return { messages: newMessages };
+  return {
+    messages: [
+      { role: "user", content: userPrompt },
+      { role: "assistant", content: responseMessage },
+    ],
+  };
 }

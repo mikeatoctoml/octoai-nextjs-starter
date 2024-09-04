@@ -25,14 +25,6 @@ export default function RootLayout({
         )}
       >
         {children}
-
-        <div className="left-0 right-0 top-0 -z-50 fixed">
-          <img
-            className="object-fit h-[100vh] w-full bg-universal"
-            src="/bg-gradient.png"
-            alt=""
-          />
-        </div>
       </body>
     </html>
   );

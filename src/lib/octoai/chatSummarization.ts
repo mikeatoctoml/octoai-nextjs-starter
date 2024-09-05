@@ -3,22 +3,25 @@
 import { octoAIClient } from "@/lib/octoaiClient";
 import { summarizeChat } from "./summarizeChat";
 
-export interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
+// Import types for chat state and messages from the chatCompletion module
+import type { ChatState, Message } from "./chatCompletion";
 
-export interface ChatState {
-  messages: Message[];
-}
+/**
+ * Handles chat summarization and generates AI responses
+ * @param prevState - The previous chat state
+ * @param formData - Form data containing the user's prompt
+ * @returns A Promise resolving to the updated ChatState
+ */
+export async function chatSummarization(prevState: ChatState, formData: FormData): Promise<ChatState> {
+  // Extract user prompt from form data
+  const userPrompt = formData.get("userPrompt") as string;
+  if (!userPrompt) {
+    throw new Error("User prompt is required");
+  }
 
-export async function chatSummarization(
-  prevState: { messages: Message[] },
-  formData: FormData
-): Promise<ChatState> {
-  const userPrompt = formData.get("userPrompt");
   let chatSummary = "";
 
+  // Summarize the chat if there's more than one message
   if (prevState.messages.length > 1) {
     const chatSummarization = await summarizeChat(prevState.messages);
     if (!chatSummarization.error) {
@@ -27,11 +30,9 @@ export async function chatSummarization(
   }
 
   // Add user message to the chat history
-  const newMessages = [
-    ...prevState.messages,
-    { role: "user", content: userPrompt },
-  ];
+  const newMessages = [...prevState.messages, { role: "user", content: userPrompt }];
 
+  // Generate AI response using OctoAI
   const chatResponse = await octoAIClient.textGen.createChatCompletion({
     model: "meta-llama-3.1-8b-instruct",
     maxTokens: 128,
@@ -47,8 +48,10 @@ export async function chatSummarization(
     ],
   });
 
+  // Extract the AI response and add it to the chat history
   const responseMessage = chatResponse.choices[0].message.content;
-  newMessages.push({ role: "assistant", content: responseMessage });
+  newMessages.push({ role: "assistant", content: responseMessage as string });
 
-  return { messages: newMessages };
+  // Return the updated chat state
+  return { messages: newMessages as Message[] };
 }
